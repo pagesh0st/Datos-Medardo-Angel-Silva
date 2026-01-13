@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Visitas - Biblioteca</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Unidad Educativa Fiscal Réplica Vicente Rocafuerte</h1>
+        <h2>Biblioteca Medardo Angel Silva</h2>
+        <p>Registro de Visitas</p>
+    </div>
+
+    <div class="container">
+        <form id="registroForm">
+            <div class="form-group">
+                <label for="nombre">Nombre Completo</label>
+                <input type="text" id="nombre" placeholder="Ingrese su nombre completo" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fecha">Fecha de Visita</label>
+                <input type="date" id="fecha" required>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de Usuario</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="estudiante" name="tipo" value="Estudiante" required>
+                        <label for="estudiante">Estudiante</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="profesor" name="tipo" value="Profesor">
+                        <label for="profesor">Profesor</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="motivo">Motivo de la Visita</label>
+                <textarea id="motivo" placeholder="Describa el motivo de su visita a la biblioteca" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Propósito</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="estudio" name="proposito" value="Estudio" required>
+                        <label for="estudio">Estudio</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="entretenimiento" name="proposito" value="Entretenimiento">
+                        <label for="entretenimiento">Entretenimiento</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-container">
+                <button type="submit" class="btn-primary">Registrar Visita</button>
+                <button type="button" id="descargarBtn" class="btn-secondary">Descargar Excel</button>
+            </div>
+        </form>
+
+        <div class="alert" id="alert">
+            ✓ Registro guardado exitosamente
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="info-bar">
+            <strong>Total de registros: <span id="contador">0</span></strong>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        function obtenerRegistros() {
+            const datos = localStorage.getItem('visitasBiblioteca');
+            return datos ? JSON.parse(datos) : [];
+        }
+
+        function guardarRegistros(registros) {
+            localStorage.setItem('visitasBiblioteca', JSON.stringify(registros));
+        }
+
+        function actualizarContador() {
+            const registros = obtenerRegistros();
+            document.getElementById('contador').textContent = registros.length;
+        }
+
+        function mostrarAlerta() {
+            const alerta = document.getElementById('alert');
+            alerta.style.display = 'block';
+            setTimeout(() => {
+                alerta.style.display = 'none';
+            }, 3000);
+        }
+
+        document.getElementById('registroForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const registro = {
+                nombre: document.getElementById('nombre').value,
+                fecha: document.getElementById('fecha').value,
+                tipo: document.querySelector('input[name="tipo"]:checked').value,
+                motivo: document.getElementById('motivo').value,
+                proposito: document.querySelector('input[name="proposito"]:checked').value,
+                horaRegistro: new Date().toLocaleString('es-EC')
+            };
+
+            const registros = obtenerRegistros();
+            registros.push(registro);
+            guardarRegistros(registros);
+
+            this.reset();
+            
+            actualizarContador();
+            mostrarAlerta();
+        });
+
+        document.getElementById('descargarBtn').addEventListener('click', function() {
+            const registros = obtenerRegistros();
+
+            if (registros.length === 0) {
+                alert('No hay registros para descargar');
+                return;
+            }
+
+            const wb = XLSX.utils.book_new();
+
+            const datosHoja = [
+                ['Nombre Completo', 'Fecha de Visita', 'Tipo de Usuario', 'Motivo de la Visita', 'Propósito', 'Hora de Registro']
+            ];
+
+            registros.forEach(registro => {
+                datosHoja.push([
+                    registro.nombre,
+                    registro.fecha,
+                    registro.tipo,
+                    registro.motivo,
+                    registro.proposito,
+                    registro.horaRegistro
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(datosHoja);
+
+            ws['!cols'] = [
+                { wch: 25 },
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 40 },
+                { wch: 15 },
+                { wch: 20 }
+            ];
+
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let col = range.s.c; col <= range.e.c; col++) {
+                const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+                if (!ws[cellAddress]) continue;
+                
+                ws[cellAddress].s = {
+                    font: { bold: true, sz: 12 },
+                    fill: { fgColor: { rgb: "D4C5A9" } },
+                    alignment: { horizontal: "center", vertical: "center" }
+                };
+            }
+
+            XLSX.utils.book_append_sheet(wb, ws, 'Registros');
+
+            const fechaActual = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(wb, `Registros_Biblioteca_${fechaActual}.xlsx`);
+        });
+
+        document.getElementById('fecha').valueAsDate = new Date();
+
+        actualizarContador();
+    </script>
+</body>
+
+</html>

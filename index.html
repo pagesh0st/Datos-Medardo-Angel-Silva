@@ -10,10 +10,17 @@
     <div class="header">
         <h1>Unidad Educativa Fiscal Réplica Vicente Rocafuerte</h1>
         <h2>Biblioteca Medardo Angel Silva</h2>
-        <p>Registro de Visitas</p>
+        <p>Sistema de Gestión Bibliotecaria</p>
     </div>
 
-    <div class="container">
+    <div class="tabs">
+        <button class="tab-button active" onclick="mostrarSeccion('visitas')">Registro de Visitas</button>
+        <button class="tab-button" onclick="mostrarSeccion('prestamos')">Préstamo de Libros</button>
+    </div>
+
+    <!-- SECCIÓN DE VISITAS -->
+    <div class="container" id="seccionVisitas">
+        <h3 class="section-title">Registro de Visitas</h3>
         <form id="registroForm">
             <div class="form-group">
                 <label for="nombre">Nombre Completo</label>
@@ -40,6 +47,11 @@
             </div>
 
             <div class="form-group">
+                <label for="libroLeer">Libro a Leer</label>
+                <input type="text" id="libroLeer" placeholder="Nombre del libro que va a leer" required>
+            </div>
+
+            <div class="form-group">
                 <label for="motivo">Motivo de la Visita</label>
                 <textarea id="motivo" placeholder="Describa el motivo de su visita a la biblioteca" required></textarea>
             </div>
@@ -56,6 +68,11 @@
                         <label for="entretenimiento">Entretenimiento</label>
                     </div>
                 </div>
+            </div>
+
+            <div class="form-group">
+                <label for="horaSalida">Hora de Salida</label>
+                <input type="time" id="horaSalida" required>
             </div>
 
             <div class="button-container">
@@ -75,8 +92,79 @@
         </div>
     </div>
 
+    <!-- SECCIÓN DE PRÉSTAMOS -->
+    <div class="container" id="seccionPrestamos" style="display: none;">
+        <h3 class="section-title">Préstamo de Libros</h3>
+        <form id="prestamoForm">
+            <div class="form-group">
+                <label for="nombrePrestamo">Nombre Completo</label>
+                <input type="text" id="nombrePrestamo" placeholder="Ingrese su nombre completo" required>
+            </div>
+
+            <div class="form-group">
+                <label for="cedula">Cédula</label>
+                <input type="text" id="cedula" placeholder="Número de cédula" pattern="[0-9]{10}" maxlength="10" required>
+            </div>
+
+            <div class="form-group">
+                <label for="nombreLibro">Nombre del Libro</label>
+                <input type="text" id="nombreLibro" placeholder="Título del libro a prestar" required>
+            </div>
+
+            <div class="form-group">
+                <label for="motivoPrestamo">Motivo del Préstamo</label>
+                <textarea id="motivoPrestamo" placeholder="Describa el motivo del préstamo" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="fechaPrestamo">Fecha de Préstamo</label>
+                <input type="date" id="fechaPrestamo" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fechaEntrega">Fecha de Entrega</label>
+                <input type="date" id="fechaEntrega" required>
+            </div>
+
+            <div class="button-container">
+                <button type="submit" class="btn-primary">Registrar Préstamo</button>
+                <button type="button" id="descargarPrestamosBtn" class="btn-secondary">Descargar Excel</button>
+            </div>
+        </form>
+
+        <div class="alert" id="alertPrestamo">
+            ✓ Préstamo registrado exitosamente
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="info-bar">
+            <strong>Total de préstamos: <span id="contadorPrestamos">0</span></strong>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
+        // FUNCIONES GENERALES
+        function mostrarSeccion(seccion) {
+            const visitasDiv = document.getElementById('seccionVisitas');
+            const prestamosDiv = document.getElementById('seccionPrestamos');
+            const tabs = document.querySelectorAll('.tab-button');
+
+            if (seccion === 'visitas') {
+                visitasDiv.style.display = 'block';
+                prestamosDiv.style.display = 'none';
+                tabs[0].classList.add('active');
+                tabs[1].classList.remove('active');
+            } else {
+                visitasDiv.style.display = 'none';
+                prestamosDiv.style.display = 'block';
+                tabs[0].classList.remove('active');
+                tabs[1].classList.add('active');
+            }
+        }
+
+        // FUNCIONES DE VISITAS
         function obtenerRegistros() {
             const datos = localStorage.getItem('visitasBiblioteca');
             return datos ? JSON.parse(datos) : [];
@@ -99,6 +187,30 @@
             }, 3000);
         }
 
+        // FUNCIONES DE PRÉSTAMOS
+        function obtenerPrestamos() {
+            const datos = localStorage.getItem('prestamosBiblioteca');
+            return datos ? JSON.parse(datos) : [];
+        }
+
+        function guardarPrestamos(prestamos) {
+            localStorage.setItem('prestamosBiblioteca', JSON.stringify(prestamos));
+        }
+
+        function actualizarContadorPrestamos() {
+            const prestamos = obtenerPrestamos();
+            document.getElementById('contadorPrestamos').textContent = prestamos.length;
+        }
+
+        function mostrarAlertaPrestamo() {
+            const alerta = document.getElementById('alertPrestamo');
+            alerta.style.display = 'block';
+            setTimeout(() => {
+                alerta.style.display = 'none';
+            }, 3000);
+        }
+
+        // FORMULARIO DE VISITAS
         document.getElementById('registroForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -106,8 +218,10 @@
                 nombre: document.getElementById('nombre').value,
                 fecha: document.getElementById('fecha').value,
                 tipo: document.querySelector('input[name="tipo"]:checked').value,
+                libroLeer: document.getElementById('libroLeer').value,
                 motivo: document.getElementById('motivo').value,
                 proposito: document.querySelector('input[name="proposito"]:checked').value,
+                horaSalida: document.getElementById('horaSalida').value,
                 horaRegistro: new Date().toLocaleString('es-EC')
             };
 
@@ -116,11 +230,46 @@
             guardarRegistros(registros);
 
             this.reset();
+            document.getElementById('fecha').valueAsDate = new Date();
             
             actualizarContador();
             mostrarAlerta();
         });
 
+        // FORMULARIO DE PRÉSTAMOS
+        document.getElementById('prestamoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const fechaPrestamo = new Date(document.getElementById('fechaPrestamo').value);
+            const fechaEntrega = new Date(document.getElementById('fechaEntrega').value);
+
+            if (fechaEntrega <= fechaPrestamo) {
+                alert('La fecha de entrega debe ser posterior a la fecha de préstamo');
+                return;
+            }
+
+            const prestamo = {
+                nombre: document.getElementById('nombrePrestamo').value,
+                cedula: document.getElementById('cedula').value,
+                nombreLibro: document.getElementById('nombreLibro').value,
+                motivoPrestamo: document.getElementById('motivoPrestamo').value,
+                fechaPrestamo: document.getElementById('fechaPrestamo').value,
+                fechaEntrega: document.getElementById('fechaEntrega').value,
+                horaRegistro: new Date().toLocaleString('es-EC')
+            };
+
+            const prestamos = obtenerPrestamos();
+            prestamos.push(prestamo);
+            guardarPrestamos(prestamos);
+
+            this.reset();
+            document.getElementById('fechaPrestamo').valueAsDate = new Date();
+            
+            actualizarContadorPrestamos();
+            mostrarAlertaPrestamo();
+        });
+
+        // DESCARGAR EXCEL DE VISITAS
         document.getElementById('descargarBtn').addEventListener('click', function() {
             const registros = obtenerRegistros();
 
@@ -132,7 +281,7 @@
             const wb = XLSX.utils.book_new();
 
             const datosHoja = [
-                ['Nombre Completo', 'Fecha de Visita', 'Tipo de Usuario', 'Motivo de la Visita', 'Propósito', 'Hora de Registro']
+                ['Nombre Completo', 'Fecha de Visita', 'Tipo de Usuario', 'Libro a Leer', 'Motivo de la Visita', 'Propósito', 'Hora de Salida', 'Hora de Registro']
             ];
 
             registros.forEach(registro => {
@@ -140,8 +289,10 @@
                     registro.nombre,
                     registro.fecha,
                     registro.tipo,
+                    registro.libroLeer,
                     registro.motivo,
                     registro.proposito,
+                    registro.horaSalida,
                     registro.horaRegistro
                 ]);
             });
@@ -152,7 +303,9 @@
                 { wch: 25 },
                 { wch: 15 },
                 { wch: 15 },
+                { wch: 30 },
                 { wch: 40 },
+                { wch: 15 },
                 { wch: 15 },
                 { wch: 20 }
             ];
@@ -169,16 +322,75 @@
                 };
             }
 
-            XLSX.utils.book_append_sheet(wb, ws, 'Registros');
+            XLSX.utils.book_append_sheet(wb, ws, 'Registros de Visitas');
 
             const fechaActual = new Date().toISOString().split('T')[0];
-            XLSX.writeFile(wb, `Registros_Biblioteca_${fechaActual}.xlsx`);
+            XLSX.writeFile(wb, `Registros_Visitas_${fechaActual}.xlsx`);
         });
 
+        // DESCARGAR EXCEL DE PRÉSTAMOS
+        document.getElementById('descargarPrestamosBtn').addEventListener('click', function() {
+            const prestamos = obtenerPrestamos();
+
+            if (prestamos.length === 0) {
+                alert('No hay préstamos para descargar');
+                return;
+            }
+
+            const wb = XLSX.utils.book_new();
+
+            const datosHoja = [
+                ['Nombre Completo', 'Cédula', 'Nombre del Libro', 'Motivo del Préstamo', 'Fecha de Préstamo', 'Fecha de Entrega', 'Hora de Registro']
+            ];
+
+            prestamos.forEach(prestamo => {
+                datosHoja.push([
+                    prestamo.nombre,
+                    prestamo.cedula,
+                    prestamo.nombreLibro,
+                    prestamo.motivoPrestamo,
+                    prestamo.fechaPrestamo,
+                    prestamo.fechaEntrega,
+                    prestamo.horaRegistro
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(datosHoja);
+
+            ws['!cols'] = [
+                { wch: 25 },
+                { wch: 15 },
+                { wch: 30 },
+                { wch: 40 },
+                { wch: 18 },
+                { wch: 18 },
+                { wch: 20 }
+            ];
+
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let col = range.s.c; col <= range.e.c; col++) {
+                const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+                if (!ws[cellAddress]) continue;
+                
+                ws[cellAddress].s = {
+                    font: { bold: true, sz: 12 },
+                    fill: { fgColor: { rgb: "D4C5A9" } },
+                    alignment: { horizontal: "center", vertical: "center" }
+                };
+            }
+
+            XLSX.utils.book_append_sheet(wb, ws, 'Préstamos de Libros');
+
+            const fechaActual = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(wb, `Prestamos_Libros_${fechaActual}.xlsx`);
+        });
+
+        // INICIALIZACIÓN
         document.getElementById('fecha').valueAsDate = new Date();
+        document.getElementById('fechaPrestamo').valueAsDate = new Date();
 
         actualizarContador();
+        actualizarContadorPrestamos();
     </script>
 </body>
-
 </html>

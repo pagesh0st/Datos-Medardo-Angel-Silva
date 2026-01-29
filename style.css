@@ -23,9 +23,48 @@ body {
     letter-spacing: 1px;
 }
 
+.header h2 {
+    color: #555;
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
 .header p {
     color: #666;
     font-size: 14px;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 14px 20px;
+    background-color: white;
+    color: #333;
+    border: 2px solid #d4c5a9;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+    border-radius: 8px;
+}
+
+.tab-button:hover {
+    background-color: #f5f5dc;
+}
+
+.tab-button.active {
+    background-color: #d4c5a9;
+    color: #333;
 }
 
 .container {
@@ -34,13 +73,23 @@ body {
     background-color: white;
     padding: 40px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+}
+
+.section-title {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 25px;
+    text-align: center;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #d4c5a9;
 }
 
 .form-group {
     margin-bottom: 25px;
 }
 
-label {
+.form-group label {
     display: block;
     margin-bottom: 8px;
     color: #333;
@@ -48,10 +97,10 @@ label {
     font-size: 14px;
 }
 
-input[type="text"],
-input[type="date"],
-select,
-textarea {
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="time"],
+.form-group textarea {
     width: 100%;
     padding: 12px;
     border: 2px solid #d4c5a9;
@@ -59,17 +108,18 @@ textarea {
     font-size: 15px;
     font-family: inherit;
     transition: border-color 0.2s;
+    border-radius: 8px;
 }
 
-input[type="text"]:focus,
-input[type="date"]:focus,
-select:focus,
-textarea:focus {
+.form-group input[type="text"]:focus,
+.form-group input[type="date"]:focus,
+.form-group input[type="time"]:focus,
+.form-group textarea:focus {
     outline: none;
     border-color: #b8a57d;
 }
 
-textarea {
+.form-group textarea {
     resize: vertical;
     min-height: 100px;
 }
@@ -113,6 +163,7 @@ button {
     cursor: pointer;
     transition: all 0.2s;
     letter-spacing: 0.5px;
+    border-radius: 8px;
 }
 
 .btn-primary {
@@ -140,6 +191,7 @@ button {
     margin-top: 30px;
     text-align: center;
     border-left: 4px solid #d4c5a9;
+    border-radius: 8px;
 }
 
 .info-bar strong {
@@ -154,17 +206,23 @@ button {
     border-left: 4px solid #5cb85c;
     background-color: #f5f5dc;
     display: none;
+    border-radius: 8px;
 }
 
 .divider {
     height: 2px;
     background-color: #f5f5dc;
     margin: 30px 0;
+    border-radius: 2px;
 }
 
 @media (max-width: 600px) {
     .container {
         padding: 25px;
+    }
+
+    .tabs {
+        flex-direction: column;
     }
 
     .button-container {

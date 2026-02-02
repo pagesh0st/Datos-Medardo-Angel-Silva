@@ -47,6 +47,30 @@
             </div>
 
             <div class="form-group">
+                <label for="curso">Curso</label>
+                <input type="text" id="curso" placeholder="Ejemplo: 8vo A, 1ro BGU B" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tutora">Tutora</label>
+                <input type="text" id="tutora" placeholder="Nombre de la tutora" required>
+            </div>
+
+            <div class="form-group">
+                <label>Jornada</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="matutina" name="jornada" value="Matutina" required>
+                        <label for="matutina">Matutina</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="vespertina" name="jornada" value="Vespertina">
+                        <label for="vespertina">Vespertina</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label for="libroLeer">Libro a Leer</label>
                 <input type="text" id="libroLeer" placeholder="Nombre del libro que va a leer" required>
             </div>
@@ -104,6 +128,30 @@
             <div class="form-group">
                 <label for="cedula">Cédula</label>
                 <input type="text" id="cedula" placeholder="Número de cédula" pattern="[0-9]{10}" maxlength="10" required>
+            </div>
+
+            <div class="form-group">
+                <label for="cursoPrestamo">Curso</label>
+                <input type="text" id="cursoPrestamo" placeholder="Ejemplo: 8vo A, 1ro BGU B" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tutoraPrestamo">Tutora</label>
+                <input type="text" id="tutoraPrestamo" placeholder="Nombre de la tutora" required>
+            </div>
+
+            <div class="form-group">
+                <label>Jornada</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="matutinaPrestamo" name="jornadaPrestamo" value="Matutina" required>
+                        <label for="matutinaPrestamo">Matutina</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="vespertinaPrestamo" name="jornadaPrestamo" value="Vespertina">
+                        <label for="vespertinaPrestamo">Vespertina</label>
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
@@ -218,6 +266,9 @@
                 nombre: document.getElementById('nombre').value,
                 fecha: document.getElementById('fecha').value,
                 tipo: document.querySelector('input[name="tipo"]:checked').value,
+                curso: document.getElementById('curso').value,
+                tutora: document.getElementById('tutora').value,
+                jornada: document.querySelector('input[name="jornada"]:checked').value,
                 libroLeer: document.getElementById('libroLeer').value,
                 motivo: document.getElementById('motivo').value,
                 proposito: document.querySelector('input[name="proposito"]:checked').value,
@@ -251,6 +302,9 @@
             const prestamo = {
                 nombre: document.getElementById('nombrePrestamo').value,
                 cedula: document.getElementById('cedula').value,
+                curso: document.getElementById('cursoPrestamo').value,
+                tutora: document.getElementById('tutoraPrestamo').value,
+                jornada: document.querySelector('input[name="jornadaPrestamo"]:checked').value,
                 nombreLibro: document.getElementById('nombreLibro').value,
                 motivoPrestamo: document.getElementById('motivoPrestamo').value,
                 fechaPrestamo: document.getElementById('fechaPrestamo').value,
@@ -281,7 +335,7 @@
             const wb = XLSX.utils.book_new();
 
             const datosHoja = [
-                ['Nombre Completo', 'Fecha de Visita', 'Tipo de Usuario', 'Libro a Leer', 'Motivo de la Visita', 'Propósito', 'Hora de Salida', 'Hora de Registro']
+                ['Nombre Completo', 'Fecha de Visita', 'Tipo de Usuario', 'Curso', 'Tutora', 'Jornada', 'Libro a Leer', 'Motivo de la Visita', 'Propósito', 'Hora de Salida', 'Hora de Registro']
             ];
 
             registros.forEach(registro => {
@@ -289,6 +343,9 @@
                     registro.nombre,
                     registro.fecha,
                     registro.tipo,
+                    registro.curso,
+                    registro.tutora,
+                    registro.jornada,
                     registro.libroLeer,
                     registro.motivo,
                     registro.proposito,
@@ -300,14 +357,17 @@
             const ws = XLSX.utils.aoa_to_sheet(datosHoja);
 
             ws['!cols'] = [
-                { wch: 25 },
-                { wch: 15 },
-                { wch: 15 },
-                { wch: 30 },
-                { wch: 40 },
-                { wch: 15 },
-                { wch: 15 },
-                { wch: 20 }
+                { wch: 25 },  // Nombre
+                { wch: 15 },  // Fecha
+                { wch: 15 },  // Tipo
+                { wch: 15 },  // Curso
+                { wch: 25 },  // Tutora
+                { wch: 12 },  // Jornada
+                { wch: 30 },  // Libro
+                { wch: 40 },  // Motivo
+                { wch: 15 },  // Propósito
+                { wch: 15 },  // Hora Salida
+                { wch: 20 }   // Hora Registro
             ];
 
             const range = XLSX.utils.decode_range(ws['!ref']);
@@ -340,13 +400,16 @@
             const wb = XLSX.utils.book_new();
 
             const datosHoja = [
-                ['Nombre Completo', 'Cédula', 'Nombre del Libro', 'Motivo del Préstamo', 'Fecha de Préstamo', 'Fecha de Entrega', 'Hora de Registro']
+                ['Nombre Completo', 'Cédula', 'Curso', 'Tutora', 'Jornada', 'Nombre del Libro', 'Motivo del Préstamo', 'Fecha de Préstamo', 'Fecha de Entrega', 'Hora de Registro']
             ];
 
             prestamos.forEach(prestamo => {
                 datosHoja.push([
                     prestamo.nombre,
                     prestamo.cedula,
+                    prestamo.curso,
+                    prestamo.tutora,
+                    prestamo.jornada,
                     prestamo.nombreLibro,
                     prestamo.motivoPrestamo,
                     prestamo.fechaPrestamo,
@@ -358,13 +421,16 @@
             const ws = XLSX.utils.aoa_to_sheet(datosHoja);
 
             ws['!cols'] = [
-                { wch: 25 },
-                { wch: 15 },
-                { wch: 30 },
-                { wch: 40 },
-                { wch: 18 },
-                { wch: 18 },
-                { wch: 20 }
+                { wch: 25 },  // Nombre
+                { wch: 15 },  // Cédula
+                { wch: 15 },  // Curso
+                { wch: 25 },  // Tutora
+                { wch: 12 },  // Jornada
+                { wch: 30 },  // Libro
+                { wch: 40 },  // Motivo
+                { wch: 18 },  // Fecha Préstamo
+                { wch: 18 },  // Fecha Entrega
+                { wch: 20 }   // Hora Registro
             ];
 
             const range = XLSX.utils.decode_range(ws['!ref']);

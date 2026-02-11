@@ -33,20 +33,6 @@
             </div>
 
             <div class="form-group">
-                <label>Tipo de Usuario</label>
-                <div class="radio-group">
-                    <div class="radio-option">
-                        <input type="radio" id="estudiante" name="tipo" value="Estudiante" required>
-                        <label for="estudiante">Estudiante</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="profesor" name="tipo" value="Profesor">
-                        <label for="profesor">Profesor</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
                 <label for="curso">Curso</label>
                 <input type="text" id="curso" placeholder="Ejemplo: 8vo A, 1ro BGU B" required>
             </div>
@@ -73,11 +59,6 @@
             <div class="form-group">
                 <label for="libroLeer">Libro a Leer</label>
                 <input type="text" id="libroLeer" placeholder="Nombre del libro que va a leer" required>
-            </div>
-
-            <div class="form-group">
-                <label for="motivo">Motivo de la Visita</label>
-                <textarea id="motivo" placeholder="Describa el motivo de su visita a la biblioteca" required></textarea>
             </div>
 
             <div class="form-group">
@@ -270,12 +251,10 @@
             const registro = {
                 nombre: document.getElementById('nombre').value,
                 fecha: document.getElementById('fecha').value,
-                tipo: document.querySelector('input[name="tipo"]:checked').value,
                 curso: document.getElementById('curso').value,
                 tutora: document.getElementById('tutora').value,
                 jornada: document.querySelector('input[name="jornada"]:checked').value,
                 libroLeer: document.getElementById('libroLeer').value,
-                motivo: document.getElementById('motivo').value,
                 proposito: document.querySelector('input[name="proposito"]:checked').value,
                 horaSalida: document.getElementById('horaSalida').value,
                 horaRegistro: new Date().toLocaleString('es-EC')
@@ -341,19 +320,17 @@
             const wb = XLSX.utils.book_new();
 
             const datosHoja = [
-                ['Nombre Completo', 'Fecha de Visita', 'Tipo de Usuario', 'Curso', 'Tutora', 'Jornada', 'Libro a Leer', 'Motivo de la Visita', 'Propósito', 'Hora de Salida', 'Hora de Registro']
+                ['Nombre Completo', 'Fecha de Visita', 'Curso', 'Tutora', 'Jornada', 'Libro a Leer', 'Propósito', 'Hora de Salida', 'Hora de Registro']
             ];
 
             registros.forEach(registro => {
                 datosHoja.push([
                     registro.nombre,
                     registro.fecha,
-                    registro.tipo,
                     registro.curso,
                     registro.tutora,
                     registro.jornada,
                     registro.libroLeer,
-                    registro.motivo,
                     registro.proposito,
                     registro.horaSalida,
                     registro.horaRegistro
@@ -365,12 +342,10 @@
             ws['!cols'] = [
                 { wch: 25 },  // Nombre
                 { wch: 15 },  // Fecha
-                { wch: 15 },  // Tipo
                 { wch: 15 },  // Curso
                 { wch: 25 },  // Tutora
                 { wch: 12 },  // Jornada
                 { wch: 30 },  // Libro
-                { wch: 40 },  // Motivo
                 { wch: 15 },  // Propósito
                 { wch: 15 },  // Hora Salida
                 { wch: 20 }   // Hora Registro
